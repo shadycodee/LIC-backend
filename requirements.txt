@@ -5,3 +5,5 @@ mysqlclient
 Pillow
 dj-database-url
 whitenoise
+django-environ
+gunicorn
