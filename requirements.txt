@@ -3,3 +3,4 @@ djangorestframework
 django-cors-headers
 mysqlclient
 Pillow
+dj-database-url
