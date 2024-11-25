@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow requests from React app
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://lic-frontend-mauve.vercel.app/",
+    "https://lic-frontend-mauve.vercel.app",
 ]
 
 REST_FRAMEWORK = {
