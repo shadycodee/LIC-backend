@@ -82,9 +82,7 @@ WSGI_APPLICATION = 'LIC_Connect.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')
-    )
+    'default': dj_database_url.config(default='mysql://slaw9zv3ydvcklzw:gnwtsigbfq5izooy@lt80glfe2gj8p5n2.chr7pe7iynqr.eu-west-1.rds.amazonaws.com:3306/l1fhv5cheeomgrm0')
 }
 
 
