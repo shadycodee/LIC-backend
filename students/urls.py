@@ -8,7 +8,7 @@ router.register(r'students', StudentViewSet, basename='student')
 urlpatterns = [
     path('', include(router.urls)),
     path('login-admin/', UserLoginView.as_view(), name='login-admin'),
-    path('login-staff/', StaffLoginView.as_view(), name='login-staff'),
+    path('login-student/', StaffLoginView.as_view(), name='login-staff'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('transactions/', TransactionListView.as_view(), name='transaction-list'),
     path('transactions/create/', TransactionCreateView.as_view(), name='transaction-create'),
