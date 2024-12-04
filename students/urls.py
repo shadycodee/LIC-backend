@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import StudentViewSet, TransactionCreateView, TransactionListView, ResetPasswordView, UserLoginView, LogoutView, StaffLoginView, StaffCreateView, StaffListView, UpdateStaffStatusView, ImportStudentView, SessionListByStudentID, StaffLogsView, log_activity, ActivityLogView, StudentUpdateView, ChangePasswordView, SemesterUpsertView, SessionHoursView, CountLoggedInView, ActiveUsersCountView, PaymentIncomeView, CoursesCountView, PreviousCoursesCountView, PreviousSessionHoursView, PreviousPaymentIncomeView
+from .views import StudentViewSet, TransactionCreateView, TransactionListView, ResetPasswordView, UserLoginView, LogoutView, student_login_view, student_logout_view, student_change_password_view, check_history_view, StaffCreateView, StaffListView, UpdateStaffStatusView, ImportStudentView, SessionListByStudentID, StaffLogsView, log_activity, ActivityLogView, StudentUpdateView, ChangePasswordView, SemesterUpsertView, SessionHoursView, CountLoggedInView, ActiveUsersCountView, PaymentIncomeView, CoursesCountView, PreviousCoursesCountView, PreviousSessionHoursView, PreviousPaymentIncomeView
 
 router = DefaultRouter()
 router.register(r'students', StudentViewSet, basename='student')
@@ -8,7 +8,10 @@ router.register(r'students', StudentViewSet, basename='student')
 urlpatterns = [
     path('', include(router.urls)),
     path('login-admin/', UserLoginView.as_view(), name='login-admin'),
-    path('login-student/', StaffLoginView.as_view(), name='login-staff'),
+    path('login-student/', student_login_view, name='login-student'),
+    path('logout-student/', student_logout_view, name='logout-student'),
+    path('change-password-student/', student_change_password_view, name='change-password-student'),
+    path('check-history-student/', check_history_view, name='check-history-student'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('transactions/', TransactionListView.as_view(), name='transaction-list'),
     path('transactions/create/', TransactionCreateView.as_view(), name='transaction-create'),

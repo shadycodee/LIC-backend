@@ -16,7 +16,10 @@ import json
 from rest_framework.decorators import api_view
 import logging
 from django.utils import timezone
-
+from django.views import View
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, date, time, timedelta
 from datetime import datetime
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
@@ -126,23 +129,137 @@ class TransactionListView(generics.ListAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
 
-class StaffLoginView(generics.GenericAPIView):
-    serializer_class = StaffLoginSerializer
+@csrf_exempt
+def student_login_view(request):
+    if request.method == "POST":
+        studentID = request.POST.get('studentID')
+        password = request.POST.get('password')
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
 
-        staff = serializer.validated_data['staff']
+        try:
+            student = Student.objects.get(studentID=studentID)
+            if not check_password(password, student.password):
+                return JsonResponse({"error": "Invalid credentials"}, status=400)
+            
+            if password == '123456':
+                return JsonResponse({"error": "Password reset required. Please change your password."}, status=401)
+            if student.is_logged_in:
+                return JsonResponse({"error": "Already logged in"}, status=400)
+            if student.time_left == 0:
+                return JsonResponse({"error": "No time left. Login not allowed."}, status=400)
+            
 
-        # Log the login action (already implemented)
-        log_staff_activity(staff, "Logged in")
+            student.is_logged_in = True
+            student.save()
+            time_left = student.time_left
 
-        return Response({
-            'status': 'success',
-            'user_id': staff.id,
-            'username': staff.username
-        }, status=status.HTTP_200_OK)
+            Session.objects.create(
+                date=date.today(),
+                loginTime=datetime.now().time(),
+                parent=student,
+                course=student.course
+            )
+
+            response_data = {
+                "message": "Login successful",
+                "time_left": time_left,  # Return time left as number of seconds
+            }
+            return JsonResponse(response_data)
+        except Student.DoesNotExist:
+            return JsonResponse({"error": "Invalid StudentID or Password"}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def student_logout_view(request):
+    if request.method == "POST":
+        studentID = request.POST.get('studentID')
+
+        try:
+            student = Student.objects.get(studentID=studentID)
+
+            if not student.is_logged_in:
+                return JsonResponse({"error": "User is not logged in"}, status=400)
+
+            # Get the active session
+            session = Session.objects.filter(parent=student, logoutTime__isnull=True).first()
+
+            if not session:
+                return JsonResponse({"error": "No active session found"}, status=400)
+
+            # Set logoutTime
+            logout_time = datetime.now().time()
+            session.logoutTime = logout_time
+
+            # Calculate consumedTime (difference between loginTime and logoutTime)
+            logout_time = datetime.now()
+            login_time = session.loginTime
+            login_time = datetime.combine(datetime.today(), login_time)
+            consumed_time = logout_time - login_time
+            print("Consumed Time: ", consumed_time)
+
+            # Calculate hours, minutes, and seconds from the timedelta
+            hours = consumed_time.seconds // 3600
+            minutes = (consumed_time.seconds % 3600) // 60
+
+            hours *= 60
+            consumed_time_as_time = hours + minutes
+            session.consumedTime = consumed_time_as_time
+            session.save()
+
+            # Mark the student as logged out
+            student.is_logged_in = False
+            student.time_left -= consumed_time_as_time
+            student.save()
+
+            return JsonResponse({"message": "Logout successful"})
+
+        except Student.DoesNotExist:
+            return JsonResponse({"error": "Invalid StudentID"}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def student_change_password_view(request):
+    if request.method == "POST":
+        studentID = request.POST.get('studentID')
+        new_password = request.POST.get('new_password')
+
+        try:
+            student = Student.objects.get(studentID=studentID)
+            student.password = make_password(new_password)
+            student.save()
+
+            return JsonResponse({"message": "Password Changed successfully"})
+
+        except Exception as e:
+           return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt    
+def check_history_view(request):
+    if request.method == "POST":
+        studentID = request.POST.get('studentID')
+        semester = Semester.objects.first()
+        year = semester.year
+        sem = semester.semester_name
+        sessions = Session.objects.filter(parent_id=studentID, semester_name=sem, year=year)
+        session_data = []
+
+        for session in sessions:
+            try:
+                session_data.append({
+                    "date": session.date,  # Assuming date stored as expire_date
+                    "loginTime": session.loginTime,
+                    "logoutTime": session.logoutTime or "N/A",
+                    "consumedTime": session.consumedTime,
+                })
+            except AttributeError as e:
+                # Handle missing fields or model errors gracefully.
+                session_data.append({"error": f"Session data error: {e}"})
+
+        return JsonResponse({"sessions": session_data})
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
     
