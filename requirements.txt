@@ -7,3 +7,4 @@ dj-database-url
 whitenoise
 django-environ
 gunicorn
+openpyxl

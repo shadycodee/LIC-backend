@@ -24,6 +24,8 @@ from datetime import datetime
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from django.db.models import Count
+import openpyxl
+from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
@@ -786,3 +788,31 @@ def log_staff_activity(staff, action):
         action=action, 
         timestamp=timezone.now()  # Explicitly pass the current timestamp
     )
+
+def export_to_excel(request):
+    records = Session.objects.all()
+
+    if not records.exists():
+        return HttpResponse("No data to export.", status=404)
+    
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = 'Sessions'
+
+    # Headers
+    headers = ['Date', 'StudentID', 'Course', 'Time Consumed (minutes)', 'Semester', 'School Year']
+    sheet.append(headers)
+
+    # Add data rows
+    for record in records:
+        sheet.append([record.date, record.parent_id, record.course, record.consumedTime, record.semester_name, record.year])
+
+    # Prepare response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename=sessions.xlsx'
+
+    # Save workbook to response
+    workbook.save(response)
+    return response

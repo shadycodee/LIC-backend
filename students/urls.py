@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import StudentViewSet, TransactionCreateView, TransactionListView, ResetPasswordView, UserLoginView, LogoutView, student_login_view, student_logout_view, student_change_password_view, check_history_view, StaffCreateView, StaffListView, UpdateStaffStatusView, ImportStudentView, SessionListByStudentID, StaffLogsView, log_activity, ActivityLogView, StudentUpdateView, ChangePasswordView, SemesterUpsertView, SessionHoursView, CountLoggedInView, ActiveUsersCountView, PaymentIncomeView, CoursesCountView, PreviousCoursesCountView, PreviousSessionHoursView, PreviousPaymentIncomeView
+from .views import StudentViewSet, TransactionCreateView, TransactionListView, ResetPasswordView, UserLoginView, LogoutView, student_login_view, student_logout_view, student_change_password_view, check_history_view, export_to_excel, StaffCreateView, StaffListView, UpdateStaffStatusView, ImportStudentView, SessionListByStudentID, StaffLogsView, log_activity, ActivityLogView, StudentUpdateView, ChangePasswordView, SemesterUpsertView, SessionHoursView, CountLoggedInView, ActiveUsersCountView, PaymentIncomeView, CoursesCountView, PreviousCoursesCountView, PreviousSessionHoursView, PreviousPaymentIncomeView
 
 router = DefaultRouter()
 router.register(r'students', StudentViewSet, basename='student')
@@ -34,6 +34,7 @@ urlpatterns = [
     path('activity-logs/', log_activity, name='log_activity'),
     path('previous-session/', PreviousSessionHoursView.as_view(), name='previous-session'),
     path('previous-income/', PreviousPaymentIncomeView.as_view(), name='previous-income'),
+    path('export/', export_to_excel, name='export-to-excel'),
 
     
 ]
