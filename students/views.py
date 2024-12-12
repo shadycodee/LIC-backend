@@ -388,7 +388,7 @@ class SessionListByStudentID(generics.ListAPIView):
         sem = Semester.objects.first()
         
         # Filter sessions based on the foreign key's studentID
-        return Session.objects.filter(parent_id=studentID semester_name=sem.semester_name, year=sem.year)
+        return Session.objects.filter(parent_id=studentID, semester_name=sem.semester_name, year=sem.year)
     
 class StudentUpdateView(generics.UpdateAPIView):
     queryset = Student.objects.all()
