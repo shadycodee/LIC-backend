@@ -153,7 +153,7 @@ def student_login_view(request):
             if student.is_logged_in:
                 return JsonResponse({"error": "Already logged in"}, status=400)
             if student.time_left == 0:
-                return JsonResponse({"error": "No time left. Login not allowed."}, status=400)
+                return JsonResponse({"error": "Your session has expired. Please contact the staff to request additional time."}, status=400)
             
 
             student.is_logged_in = True
