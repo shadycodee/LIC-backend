@@ -127,9 +127,14 @@ class TransactionCreateView(APIView):
     
 
 class TransactionListView(generics.ListAPIView):
-    
-    queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+
+    def get_queryset(self):
+        # Retrieve the active semester (or filter based on your needs)
+        sem = Semester.objects.first()  # Or use a filter to get the active semester
+        
+        # Filter transactions by semester name and year
+        return Transaction.objects.filter(semester_name=sem.semester_name, year=sem.year)
 
 @csrf_exempt
 def student_login_view(request):
@@ -380,9 +385,10 @@ class SessionListByStudentID(generics.ListAPIView):
 
     def get_queryset(self):
         studentID = self.kwargs['studentID']
-        print(studentID)
+        sem = Semester.objects.first()
+        
         # Filter sessions based on the foreign key's studentID
-        return Session.objects.filter(parent_id=studentID)
+        return Session.objects.filter(parent_id=studentID semester_name=sem.semester_name, year=sem.year)
     
 class StudentUpdateView(generics.UpdateAPIView):
     queryset = Student.objects.all()
