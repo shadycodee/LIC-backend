@@ -794,6 +794,11 @@ def log_staff_activity(staff, action):
         action=action, 
         timestamp=timezone.now()  # Explicitly pass the current timestamp
     )
+    
+def make_naive(value):
+    if isinstance(value, datetime) and value.tzinfo is not None:
+        return value.astimezone(tz=None).replace(tzinfo=None)
+    return value
 
 def export_to_excel(request):
     current_sem = Semester.objects.first()
@@ -821,14 +826,14 @@ def export_to_excel(request):
 
     # Add data rows
     for record in records:
-        sheet.append([record.date, record.parent_id, record.course, record.loginTime, record.logoutTime, record.consumedTime, record.semester_name, record.year])
+        sheet.append([record.date, record.parent_id, record.course, make_naive(record.loginTime), make_naive(record.logoutTime), record.consumedTime, record.semester_name, record.year])
 
     transaction_sheet = workbook.create_sheet(title='Transactions')
     transaction_header = ['Reference Number', 'Date and Time', 'Payment(PHP)', 'Semester', 'School Year']
     transaction_sheet.append(transaction_header)
 
     for t in transactions:
-        transaction_sheet.append([t.reference_number, t.timestamp, t.amount, t.semester_name, t.year])
+        transaction_sheet.append([t.reference_number, make_naive(t.timestamp), t.amount, t.semester_name, t.year])
 
     # Prepare response
     response = HttpResponse(

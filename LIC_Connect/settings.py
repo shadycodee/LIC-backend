@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
-
-ALLOWED_HOSTS = ['lic-backend-f65697da89f2.herokuapp.com']
+# DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = False
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -82,7 +82,14 @@ WSGI_APPLICATION = 'LIC_Connect.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default='mysql://slaw9zv3ydvcklzw:gnwtsigbfq5izooy@lt80glfe2gj8p5n2.chr7pe7iynqr.eu-west-1.rds.amazonaws.com:3306/l1fhv5cheeomgrm0')
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'lic_system',
+        'USER': 'root',
+        'PASSWORD': 'licadmin2024',
+        'HOST': 'localhost',
+        'PORT': '3307',
+    }
 }
 
 
@@ -133,7 +140,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow requests from React app
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://lic-frontend-mauve.vercel.app",
 ]
 
 REST_FRAMEWORK = {
