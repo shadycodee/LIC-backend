@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 DEBUG = False
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -140,6 +140,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow requests from React app
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://0.0.0.0:3000",
+    "http://172.16.97.22:3000",
 ]
 
 REST_FRAMEWORK = {
